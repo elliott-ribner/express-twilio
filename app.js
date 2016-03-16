@@ -6,6 +6,7 @@ app.get('/', function(req, res) {
 });
 
 app.post('/incoming', function(request, response) {
+	response.header('Content-Type', 'text/xml');
 	response.send('<Response>This is my next message</Response>')
 });
 
