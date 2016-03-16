@@ -8,7 +8,7 @@ app.get('/', function(req, res) {
 app.post('/incoming', function(request, response) {
 	console.log(request);
 	response.header('Content-Type', 'text/xml');
-	response.send('<Response>This is my next message</Response>')
+	response.send('<Response><Sms>This is my next message</Sms></Response>')
 });
 
 app.listen(process.env.PORT || 3000, function() {
