@@ -9,6 +9,6 @@ app.post('/incoming', function(request, response) {
 	response.send('<Response>This is my next message</Response>')
 });
 
-app.listen(3000, function() {
+app.listen(process.env.PORT || 3000, function() {
 	console.log('app is runnning on port 3000');
 })
