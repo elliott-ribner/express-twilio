@@ -22,7 +22,7 @@ app.post('/incoming', function(request, response) {
 	console.log('and response');
 	console.log(response);
 
-	var message1 = new User({phone: "8888888888", step: 2});
+	var message1 = new Message({phone: "8888888888", step: 2});
 
 	message1.save(function(err,userObj) {
 		if (err) {
