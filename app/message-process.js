@@ -2,6 +2,7 @@
 var conversation = require('./conversation.js'); //will later be replacedd by something returned from database; search for conversation  based on number or input code and return steps which is array inside that given document
 var User = require('./models.js');
 
+
 class MessageRequest {
 	contructor(body,from,to,id) {
 		this.body = body;

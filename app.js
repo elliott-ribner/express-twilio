@@ -1,6 +1,5 @@
 "use strict";
 var express = require('express');
-var app = express();
 var runProcess = require('./app/message-process.js');
 
 var mongoose = require('mongoose');
@@ -8,11 +7,7 @@ var mongoose = require('mongoose');
 // local db mongodb://localhost:27017/rubens
 mongoose.connect('mongodb://heroku_fbn116f1:g4t312kspun05da14eisj94srl@ds045064.mlab.com:45064/heroku_fbn116f1');
 
-//var Text = mongoose.model('User', {phone: String, step: Number});
-
 runProcess('hey there','9788887171','986888885', 'x2djsjd' );
-
-
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');

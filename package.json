@@ -4,12 +4,17 @@
   "description": "take incoming twilio messages and provide responses",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongoose": "^4.4.9"
+    "async": "^2.0.0-rc.2",
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "mongodb": "^2.1.11",
+    "mongoose": "^4.4.9",
+    "test": "^0.6.0"
   }
 }
