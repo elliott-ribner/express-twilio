@@ -4,26 +4,33 @@ var User = require('./models.js');
 
 
 class MessageRequest {
-	contructor(body,from,to,id) {
+	constructor(body,sender,to,id) {
 		this.body = body;
-		this.from = from;
+		this.sender = sender;
 		this.to = to;
 		this.twilioId = id;
 	}
 	findResponse() {
-		User.findOne({'phoneNumber': this.from },function(err, user) {
+		User.findOne({'phoneNumber': this.sender },function(err, user) {
 			if (err) {
 				console.log(err);
-			} else {
-				console.log(user);
+			} else if (user) { // query returned and user exists
+				console.log('user update',user);
 				this.user = user;
 				this.response = conversation.messages[user.step];
 				this.incrementStep();
+			} else { //query returned and user does not exist
+				var user = new User({phoneNumber: this.sender, step: 0, workflowId: 'shouldBeUniqueIdentifier'});
+				user.save(function(err, user) {
+					this.user = user;
+					this.response = conversation.messages[user.step];
+					this.incrementStep;
+					console.log('user create',user);
+				}.bind(this));
 			}
 		}.bind(this));
 	}
 	incrementStep() {
-		console.log(this.response.body);
 		this.user.step ++;
 		this.user.save(function(err, obj) {
 			if (err) {
@@ -35,8 +42,8 @@ class MessageRequest {
 	}
 }
 
-var runProcess = function(body,from,to,id) {
-	var message = new MessageRequest(body,from,to,id);
+var runProcess = function(body,sender,to,id) {
+	var message = new MessageRequest(body,sender,to,id);
 	message.findResponse();
 }
 
