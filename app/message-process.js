@@ -11,32 +11,27 @@ class MessageRequest {
 		this.twilioId = id;
 	}
 	findResponse() {
-		User.findOne({'phoneNumber': this.sender },function(err, user) {
-			if (err) {
-				console.log(err);
-			} else if (user) { // query returned and user exists
-				console.log('user update',user);
-				this.user = user;
-				this.response = conversation.messages[user.step];
-				this.incrementStep();
-			} else { //query returned and user does not exist
-				var user = new User({phoneNumber: this.sender, step: 0, workflowId: 'shouldBeUniqueIdentifier'});
-				user.save(function(err, user) {
-					this.user = user;
-					this.response = conversation.messages[user.step];
-					this.incrementStep;
-					console.log('user create',user);
-				}.bind(this));
-			}
+		this.response = conversation.messages[this.user.step];
+		return this.response;
+	}
+	getUser() {
+		return User.findOne({'phoneNumber': this.sender }, function(err, user) {
+			this.user = user;
+		}.bind(this));
+	}
+	createUser() {
+		var user = new User({phoneNumber: this.sender, step: 0, workflowId: 'shouldBeUniqueIdentifier'});
+		return user.save(function(err, user) {
+			this.user = user;
 		}.bind(this));
 	}
 	incrementStep() {
 		this.user.step ++;
-		this.user.save(function(err, obj) {
+		return this.user.save(function(err, obj) {
 			if (err) {
-				console.log(err);
+				//handle error
 			} else {
-				console.log(obj);
+				//do nothing
 			}
 		})
 	}
@@ -44,7 +39,19 @@ class MessageRequest {
 
 var runProcess = function(body,sender,to,id) {
 	var message = new MessageRequest(body,sender,to,id);
-	message.findResponse();
+	return message.getUser().then((user) => {
+		if (user) {
+			return user;
+		} else {
+			return message.createUser();
+		}
+	}).then(() => {
+		return message.findResponse();
+	}).then(() => {
+		return message.incrementStep();
+	}).then(() => {
+		return message.response.body;
+	})
 }
 
 module.exports = runProcess;

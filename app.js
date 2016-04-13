@@ -8,7 +8,9 @@ var config = require('./server/config/config');
 // local db mongodb://localhost:27017/rubens
 mongoose.connect(config.db.url);
 
-runProcess('hey there','40643999','986858885', 'x2djsjd' );
+runProcess('hey there','0644664399','986858885', 'x2djsjd' ).then((result) => {
+	console.log(result);
+})
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
