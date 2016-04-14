@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
 	phoneNumber: String,
-	step: String,
+	step: Number,
 	workflowId: String,
 });
 

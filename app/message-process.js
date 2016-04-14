@@ -1,6 +1,6 @@
 "use strict";
-var conversation = require('./conversation.js'); //will later be replacedd by something returned from database; search for conversation  based on number or input code and return steps which is array inside that given document
-var User = require('./models.js');
+var User = require('./models');
+var Convo = require('./convo');
 
 
 class MessageRequest {
@@ -11,8 +11,16 @@ class MessageRequest {
 		this.twilioId = id;
 	}
 	findResponse() {
-		this.response = conversation.messages[this.user.step];
-		return this.response;
+		return Convo.findOne() // right now there is only one convo but in the futrue we will to search them
+		.then((convo) => {
+			if (convo.convoSteps[this.user.step]) {
+				this.response = convo.convoSteps[this.user.step].body;
+				return this.response;
+			} else {
+				this.reponse = convo.convoSteps.defaultResponse;
+				return this.response;
+			}
+		});
 	}
 	getUser() {
 		return User.findOne({'phoneNumber': this.sender }, function(err, user) {
@@ -27,13 +35,7 @@ class MessageRequest {
 	}
 	incrementStep() {
 		this.user.step ++;
-		return this.user.save(function(err, obj) {
-			if (err) {
-				//handle error
-			} else {
-				// nothin
-			}
-		})
+		return this.user.save();
 	}
 }
 

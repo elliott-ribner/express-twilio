@@ -6,7 +6,7 @@ var convoSchema = new Schema({
   //timestamps: true,
   code: String,
   defaultRepsponse: String,
-  convoStep: [{name: String,body: String, expectedResponse: String}]
+  convoSteps: [{name: String,body: String, expectedResponse: String}]
 });
 
 var Convo = mongoose.model('Convo', convoSchema);
