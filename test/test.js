@@ -1,23 +1,78 @@
+"use strict";
 var chai = require('chai');
-var should = chai.should();
-
-var express = require('express');
-var app = express();
-var runProcess = require('../app/message-process.js');
-
-//below should eventually be switched to test db rather than real db
+var expect = chai.expect;
+var MessageRequest = require('../app/message-process');
+var config = require('../server/config/config');
+var Convo = require('../app/convo');
+var User = require('../app/models');
 var mongoose = require('mongoose');
-//mongo creds coming from setup as described in https://devcenter.heroku.com/articles/mongolab - heroku addons create
-// local db mongodb://localhost:27017/rubens
-mongoose.connect('mongodb://heroku_fbn116f1:g4t312kspun05da14eisj94srl@ds045064.mlab.com:45064/heroku_fbn116f1');
+
+mongoose.connect(config.db.url);
 
 
 describe('Message Process', function() {
-	it('should return first message for new user', function(done) {
-		runProcess('hey there','9788887171','986888885', 'x2djsjd' )
-		.then(() => {
-			expect(1).to.eql(true);
-		})
+  
+  before(function() {
+    Convo.find().remove().exec();
+    User.find().remove().exec();
+  });
+
+  beforeEach(function() {
+    var convo = new Convo({
+      onwner: 'xfjeje',
+      code: '4394',
+      defaultResponse: 'the convo is over this is default mesage',
+      convoStep: [
+        {
+          name: 'intro',
+          body: 'Hey welcome to the app',
+          expectedResponse: 'string'
+        },
+        {
+          name: 'intro',
+          body: 'This is the second message',
+          expectedResponse: 'string'
+        },
+        {
+          name: 'intro',
+          body: 'This is third one',
+          expectedResponse: 'string'
+        },
+      ]
+    });
+  });
+
+  afterEach(function() {
+    Convo.find().remove().exec();
+    User.find().remove().exec();
+  })
+
+	it('should return first message for new user', function() {
+  	var message = new MessageRequest('hey yo','99668864141','85847737','84883');
+    this.timeout(6000);
+    console.log(message);
+    return message.getUser().then((user) => {
+      console.log('stepone', user);
+      if (user) {
+        return user;
+      } else {
+        return message.createUser();
+      }
+    })
+    .then(() => {
+      return message.findResponse();
+    })
+    .then(() => {
+      return message.incrementStep();
+    })
+    .then(() => {
+      return message.response.body;
+    })
+    .then((body) => {
+      console.log('wtf');
+      expect(true).to.eql(true);
+    })
+
 	});
 });
 

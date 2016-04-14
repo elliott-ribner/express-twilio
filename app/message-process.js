@@ -31,7 +31,7 @@ class MessageRequest {
 			if (err) {
 				//handle error
 			} else {
-				//do nothing
+				// nothin
 			}
 		})
 	}
@@ -54,4 +54,4 @@ var runProcess = function(body,sender,to,id) {
 	})
 }
 
-module.exports = runProcess;
+module.exports = MessageRequest;

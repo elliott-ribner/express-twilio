@@ -1,10 +1,11 @@
 var mongoose = require('mongoose');
-var schema = mongoose.Schema;
+var Schema = mongoose.Schema;
 
 var convoSchema = new Schema({
   owner: String,
-  timestamps: true,
+  //timestamps: true,
   code: String,
+  defaultRepsponse: String,
   convoStep: [{name: String,body: String, expectedResponse: String}]
 });
 
