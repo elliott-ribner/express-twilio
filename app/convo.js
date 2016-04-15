@@ -5,7 +5,7 @@ var convoSchema = new Schema({
   owner: String,
   //timestamps: true,
   code: String,
-  defaultRepsponse: String,
+  defaultResponse: String,
   convoSteps: [{name: String,body: String, expectedResponse: String}]
 });
 

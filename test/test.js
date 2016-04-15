@@ -19,8 +19,8 @@ describe('Message Process', function() {
 
   beforeEach(function() {
     var convo = new Convo({
-      onwner: 'xfjeje',
-      code: '4394',
+      owner: 'xfjeje',
+      code: '4224',
       defaultResponse: 'the convo is over this is default mesage',
       convoSteps: [
         {
@@ -88,14 +88,23 @@ describe('Message Process', function() {
       return message.findResponse();
     })
     .then(() => {
+      return message.saveResponse();
+    })
+    .then(() => {
       return message.incrementStep();
     })
     .then(() => {
-      return message.response;
+      expect(message.response).to.eql('Whats your last name');
     })
-    .then((response) => {
-      expect(response).to.eql('Whats your last name');
-    });
+    .then(() => {
+      return User.findOne({phoneNumber: phone}).lean();
+    }).then((queryResult) => {
+      expect(queryResult.responses[0]).to.eql({
+        userReply: 'Ron',
+        question: 'Whats your first name',
+        _id: queryResult.responses[0]._id
+      });
+    })
   });
 
   it('increments user to next step', function() {
@@ -110,9 +119,28 @@ describe('Message Process', function() {
     }).then(() => {
       return User.find({phoneNumber: phone});
     }).then((user) => {
-      expect(user.step).to.equal(2);
+      expect(user.step._id).to.equal(2);
     })
   });
+
+  it('responds correctly for user who has worked through every step', function() {
+    let phone = '9998887777';
+    var user = new User({phoneNumber: phone, step: 6, workflowId: '2x'});
+    user.save();
+    var message = new MessageRequest('Ron', phone, '9843339494', 'xcxc');
+    return message.getUser().then((user) => {
+      if (user) {
+        return user;
+      } else {
+        return message.createUser();
+      }
+    })
+    .then(() => {
+      return message.findResponse();
+    }).then(() => {
+      expect(message.response).to.equal('the convo is over this is default mesage');
+    })
+  })
 
 });
 
