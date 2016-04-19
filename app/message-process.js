@@ -1,7 +1,7 @@
 "use strict";
-var User = require('./models');
-var Convo = require('./convo');
-
+let User = require('./models');
+let Convo = require('./convo');
+let helpers = require('./helpers');
 
 class MessageRequest {
 	constructor(body,sender,to,id) {
@@ -11,12 +11,13 @@ class MessageRequest {
 		this.twilioId = id;
 	}
 	findResponse() {
-		return Convo.findOne() // right now there is only one convo but in the futrue we will to search them
+		return Convo.findOne({phoneNumber: this.to}) // right now there is only one convo but in the futrue we will to search them
 		.then((convo) => {
 			if (convo.convoSteps[this.user.step]) {
 				this.response = convo.convoSteps[this.user.step].body;
 				if (this.user.step > 0) { // save prev response to be saved with the message the user sent
-					this.previousPrompt = convo.convoSteps[this.user.step -1].body
+					this.previousPrompt = convo.convoSteps[this.user.step -1].body;
+					//this.validResponse = validResponseType(this.body, convo.convoSteps[this.user.step -1].expectedResponse);
 				}
 				return this.response;
 			} else {

@@ -20,7 +20,7 @@ describe('Message Process', function() {
   beforeEach(function() {
     var convo = new Convo({
       owner: 'xfjeje',
-      code: '4224',
+      phoneNumber: '7778889999',
       defaultResponse: 'the convo is over this is default mesage',
       convoSteps: [
         {
@@ -35,8 +35,8 @@ describe('Message Process', function() {
         },
         {
           name: 'intro',
-          body: 'What time are you coming',
-          expectedResponse: 'string'
+          body: 'How many people are in your party',
+          expectedResponse: 'number'
         },
       ]
     });
@@ -49,7 +49,7 @@ describe('Message Process', function() {
   })
 
 	it('should return first message for new user', function() {
-  	var message = new MessageRequest('hey yo','9984141','85847737','84883');
+  	var message = new MessageRequest('hey yo','9984141','7778889999','84883');
     return message.getUser().then((user) => {
       if (user) {
         return user;
@@ -76,7 +76,7 @@ describe('Message Process', function() {
     let phone = '9998887777'
     var user = new User({phoneNumber: phone, step: 1, workflowId: '2x'});
     user.save();
-    var message = new MessageRequest('Ron', phone, '9843339494', 'xcxc');
+    var message = new MessageRequest('Ron', phone, '7778889999', 'xcxc');
     return message.getUser().then((user) => {
       if (user) {
         return user;
@@ -111,7 +111,7 @@ describe('Message Process', function() {
     let phone = '9998887777'
     var user = new User({phoneNumber: phone, step: 1, workflowId: '2x'});
     user.save().then(() =>{
-     return new MessageRequest('Ron', phone, '9843339494', 'xcxc');
+     return new MessageRequest('Ron', phone, '7778889999', 'xcxc');
     }).then((message)=> {
       return message.getUser()
     }).then((user)=> {
@@ -127,7 +127,7 @@ describe('Message Process', function() {
     let phone = '9998887777';
     var user = new User({phoneNumber: phone, step: 6, workflowId: '2x'});
     user.save();
-    var message = new MessageRequest('Ron', phone, '9843339494', 'xcxc');
+    var message = new MessageRequest('Ron', phone, '7778889999', 'xcxc');
     return message.getUser().then((user) => {
       if (user) {
         return user;
