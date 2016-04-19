@@ -1,35 +1,38 @@
 "use strict";
 var express = require('express');
-var runProcess = require('./app/message-process.js');
+var MessageRequest = require('./app/message-process.js');
 var app = express();
 var mongoose = require('mongoose');
 var config = require('./server/config/config');
-//mongo creds coming from setup as described in https://devcenter.heroku.com/articles/mongolab - heroku addons create
-// local db mongodb://localhost:27017/rubens
-mongoose.connect(config.db.url);
+var bodyParser = require('body-parser');
 
-runProcess('hey there','0644664399','986858885', 'x2djsjd' ).then((result) => {
-	console.log(result);
-})
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
 });
 
-app.post('/incoming', function(request, response) {
-
-	var text1 = new Text({phone: "8888888888", step: 2});
-
-	text1.save(function(err,userObj) {
-		if (err) {
-			console.log(err);
-		} else {
-			console.log('saved successfully:', userObj);
-		}
-	});
-
-	response.header('Content-Type', 'text/xml');
-	response.send('<Response><Sms>This is my next message</Sms></Response>')
+app.post('/incoming', function(req, res) {
+	var message = new MessageRequest(req.body.body, req.body.from, req.body.to, req.body._id);
+	//console.log(req.body);
+  return message.getUser().then((user) => {
+    if (user) {
+      return user;
+    } else {
+      return message.createUser();
+    }
+  })
+  .then(() => {
+    return message.findResponse();
+  })
+  .then(() => {
+    return message.incrementStep();
+  })
+  .then(() => {
+		res.header('Content-Type', 'text/xml');
+		res.send(`<Response><Sms>${message.response}</Sms></Response>`);
+  })
 });
 
 app.listen(process.env.PORT || 3000, function() {
@@ -37,3 +40,4 @@ app.listen(process.env.PORT || 3000, function() {
 })
 
 
+module.exports = app;

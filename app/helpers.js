@@ -9,5 +9,16 @@ module.exports = {
         return reg.test(actual);
         break;
     }
+  },
+  correctResponse(expected) {
+    console.log('hello',expected);
+    switch(expected) {
+      case 'String': 
+        return 'Please respond with text.';
+        break;
+      case 'Number':
+        return 'Please respond with a number (i.e. 12 not twelve)';
+        break;
+    }
   }
 }

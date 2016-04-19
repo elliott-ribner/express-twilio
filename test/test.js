@@ -6,9 +6,67 @@ var config = require('../server/config/config');
 var Convo = require('../app/convo');
 var User = require('../app/models');
 var mongoose = require('mongoose');
+var request = require('supertest');
+var app = require('../app');
 
 mongoose.connect(config.db.url);
 
+describe('API requests', function() {
+  before(function() {
+    Convo.find().remove().exec();
+    User.find().remove().exec();
+  });
+
+  beforeEach(function() {
+    var convo = new Convo({
+      owner: 'xfjeje',
+      phoneNumber: '7778889999',
+      defaultResponse: 'the convo is over this is default mesage',
+      convoSteps: [
+        {
+          name: 'intro',
+          body: 'Whats your first name',
+          expectedResponse: 'String'
+        },
+        {
+          name: 'intro',
+          body: 'Whats your last name',
+          expectedResponse: 'String'
+        },
+        {
+          name: 'intro',
+          body: 'How many people are in your party',
+          expectedResponse: 'Number'
+        },
+      ]
+    });
+    convo.save();
+  });
+
+  afterEach(function() {
+    Convo.find().remove().exec();
+    User.find().remove().exec();
+  });
+
+  it("should allow valid post request for new user", function(done) {
+    request(app)
+      .post('/incoming')
+      .send({
+        body: 'yo whats up',
+        from: '9991112222',
+        to: '7778889999',
+        _id: 'x9382'
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', '/text/xml')
+      .expect(201)
+      .end(function(err,resp) {
+        expect(resp.text).to.equal('<Response><Sms>Whats your first name</Sms></Response>');
+        done();
+      });
+  });
+
+})
 
 describe('Message Process', function() {
   
@@ -26,17 +84,17 @@ describe('Message Process', function() {
         {
           name: 'intro',
           body: 'Whats your first name',
-          expectedResponse: 'string'
+          expectedResponse: 'String'
         },
         {
           name: 'intro',
           body: 'Whats your last name',
-          expectedResponse: 'string'
+          expectedResponse: 'String'
         },
         {
           name: 'intro',
           body: 'How many people are in your party',
-          expectedResponse: 'number'
+          expectedResponse: 'Number'
         },
       ]
     });
@@ -104,6 +162,37 @@ describe('Message Process', function() {
         question: 'Whats your first name',
         _id: queryResult.responses[0]._id
       });
+    })
+  });
+
+  it("should return invalid type response when inputted does not match expected type", function() {
+    let phone = '9998887777'
+    var user = new User({phoneNumber: phone, step: 2, workflowId: '2x'});
+    user.save();
+    var message = new MessageRequest('Three', phone, '7778889999', 'xcxc');
+    return message.getUser().then((user) => {
+      if (user) {
+        return user;
+      } else {
+        return message.createUser();
+      }
+    })
+    .then(() => {
+      return message.findResponse();
+    })
+    .then(() => {
+      return message.saveResponse();
+    })
+    .then(() => {
+      return message.incrementStep();
+    })
+    .then(() => {
+      expect(message.response).to.eql('Please respond with a number (i.e. 12 not twelve)');
+    })
+    .then(() => {
+      return User.findOne({phoneNumber: phone}).lean();
+    }).then((queryResult) => {
+      expect(queryResult.step).to.eql(2);
     })
   });
 
