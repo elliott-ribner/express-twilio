@@ -1,40 +1,38 @@
 "use strict";
 var express = require('express');
+var MessageRequest = require('./app/message-process.js');
 var app = express();
-var runProcess = require('./app/message-process.js');
-
 var mongoose = require('mongoose');
-//mongo creds coming from setup as described in https://devcenter.heroku.com/articles/mongolab - heroku addons create
-// local db mongodb://localhost:27017/rubens
-mongoose.connect('mongodb://heroku_fbn116f1:g4t312kspun05da14eisj94srl@ds045064.mlab.com:45064/heroku_fbn116f1');
+var config = require('./server/config/config');
+var bodyParser = require('body-parser');
 
-var Text = mongoose.model('User', {phone: String, step: Number});
-
-runProcess('hey there','9788887171','986888885', 'x2djsjd' );
-
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
 });
 
-app.post('/incoming', function(request, response) {
-	console.log(request);
-	console.log('and response');
-	console.log(response);
-
-	var text1 = new Text({phone: "8888888888", step: 2});
-
-	text1.save(function(err,userObj) {
-		if (err) {
-			console.log(err);
-		} else {
-			console.log('saved successfully:', userObj);
-		}
-	});
-
-	response.header('Content-Type', 'text/xml');
-	response.send('<Response><Sms>This is my next message</Sms></Response>')
+app.post('/incoming', function(req, res) {
+	var message = new MessageRequest(req.body.body, req.body.from, req.body.to, req.body._id);
+	//console.log(req.body);
+  return message.getUser().then((user) => {
+    if (user) {
+      return user;
+    } else {
+      return message.createUser();
+    }
+  })
+  .then(() => {
+    return message.findResponse();
+  })
+  .then(() => {
+    return message.incrementStep();
+  })
+  .then(() => {
+		res.header('Content-Type', 'text/xml');
+		res.send(`<Response><Sms>${message.response}</Sms></Response>`);
+  })
 });
 
 app.listen(process.env.PORT || 3000, function() {
@@ -42,3 +40,4 @@ app.listen(process.env.PORT || 3000, function() {
 })
 
 
+module.exports = app;

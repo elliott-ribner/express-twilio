@@ -1,27 +1,75 @@
 "use strict";
-var conversation = require('./conversation.js'); //will later be replacedd by something returned from database; search for conversation  based on number or input code and return steps which is array inside that given document
+let User = require('./models');
+let Convo = require('./convo');
+let helpers = require('./helpers');
 
 class MessageRequest {
-	contructor(body,from,to,id) {
+	constructor(body,sender,to,id) {
 		this.body = body;
-		this.from = from;
+		this.sender = sender;
 		this.to = to;
 		this.twilioId = id;
+		this.validResponse = true;
 	}
 	findResponse() {
-		User.findOne({'phoneNumber': this.from },function(err, user) {
-			if (err) {
-				console.log(err);
+		return Convo.findOne({phoneNumber: this.to}) // right now there is only one convo but in the futrue we will to search them
+		.then((convo) => {
+			if (convo.convoSteps[this.user.step]) {
+				this.response = convo.convoSteps[this.user.step].body;
+				if (this.user.step > 0) { // save prev response to be saved with the message the user sent
+					this.previousPrompt = convo.convoSteps[this.user.step -1].body;
+					
+					if (!helpers.validResponseType(this.body, convo.convoSteps[this.user.step].expectedResponse)) {
+						this.validResponse = false;
+						this.response = helpers.correctResponse(convo.convoSteps[this.user.step].expectedResponse);
+					}
+				}
+				return this.response;
 			} else {
-				console.log(user);
+				this.response = convo.defaultResponse;
+				return this.response;
 			}
 		});
 	}
+	saveResponse() {
+		if (!this.previousPrompt || !this.validResponse) {return; }
+		let response = {question: this.previousPrompt, userReply: this.body };
+		return User.findOneAndUpdate({_id:this.user._id}, {$push: {responses: response}},{upsert: true}, function(err, doc) {});
+
+	}
+	getUser() {
+		return User.findOne({'phoneNumber': this.sender }, function(err, user) {
+			this.user = user;
+		}.bind(this));
+	}
+	createUser() {
+		var user = new User({phoneNumber: this.sender, step: 0, workflowId: 'shouldBeUniqueIdentifier'});
+		return user.save(function(err, user) {
+			this.user = user;
+		}.bind(this));
+	}
+	incrementStep() {
+		if(!this.validResponse) {return; };
+		this.user.step ++;
+		return this.user.save();
+	}
 }
 
-var runProcess = function(body,from,to,id) {
-	var message = new MessageRequest(body,from,to,id);
-	message.findResponse();
+var runProcess = function(body,sender,to,id) {
+	var message = new MessageRequest(body,sender,to,id);
+	return message.getUser().then((user) => {
+		if (user) {
+			return user;
+		} else {
+			return message.createUser();
+		}
+	}).then(() => {
+		return message.findResponse();
+	}).then(() => {
+		return message.incrementStep();
+	}).then(() => {
+		return message.response.body;
+	})
 }
 
-module.exports = runProcess;
+module.exports = MessageRequest;
