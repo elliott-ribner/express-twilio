@@ -9,7 +9,8 @@ var morgan = require('morgan');
 var jwt = require('jsonwebtoken');
 var AdminUser = require('./app/admin-user');
 
-mongoose.connect(config.db.url);
+//need this connection for app to run but should not run in test;
+//mongoose.connect(config.db.url);
 
 app.set('secret', config.secret);
 app.use(morgan('dev'));

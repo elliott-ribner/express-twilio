@@ -8,6 +8,8 @@ var User = require('../app/models');
 var mongoose = require('mongoose');
 var request = require('supertest');
 var app = require('../app');
+var AdminUser = require('../app/admin-user');
+
 
 mongoose.connect(config.db.url);
 
@@ -15,6 +17,7 @@ describe('API requests', function() {
   before(function() {
     Convo.find().remove().exec();
     User.find().remove().exec();
+    AdminUser.find().remove().exec();
   });
 
   beforeEach(function() {
@@ -65,6 +68,27 @@ describe('API requests', function() {
         done();
       });
   });
+
+  it("should allow new user signup", function(done) {
+    request(app)
+      .post('/api/newuser')
+      .send({
+        email: 'elr8@gmail.com',
+        password: 'password'
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(201)
+      .end(function(err, res) {
+        expect(res.body).to.eql({
+          success: true,
+          adminId: res.body.adminId,
+          message: "Enjoy da token",
+          token: res.body.token
+        });
+        done();
+      });
+  })
 
 })
 
@@ -232,4 +256,5 @@ describe('Message Process', function() {
   })
 
 });
+
 
