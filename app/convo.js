@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var convoSchema = new Schema({
-  owner: String,
+  userId: String,
   //timestamps: true,
   code:{type: String, optional: true}, //we could user phone # or code to identify proper convo, each # has one convo, or one # can route to many convos based on opening text
   phoneNumber: {type:String, optional:true}, //we could user phone # or code to identify proper convo, each # has one convo, or one # can route to many convos based on opening text
