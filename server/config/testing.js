@@ -1,5 +1,6 @@
 module.exports = {
-	logging: false
+	logging: false,
+  secret: 'secret',
 	db: {
 		url: 'mongodb//localhost/testtext'
 	}

@@ -5,6 +5,8 @@ var userSchema = new Schema({
 	phoneNumber: String,
 	step: Number,
 	workflowId: String,
+  password: String,
+  email: String,
   responses: [{question: String, userReply:String}]
 });
 

@@ -7,6 +7,9 @@ var config = require('./server/config/config');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var jwt = require('jsonwebtoken');
+var AdminUser = require('./app/admin-user');
+
+mongoose.connect(config.db.url);
 
 app.set('secret', config.secret);
 app.use(morgan('dev'));
@@ -44,8 +47,27 @@ app.post('/incoming', function(req, res) {
 /// routes for posting new conversations and downloading conversatings
 var apiRoutes = express.Router();
 
+
+
+apiRoutes.post('/newuser', function(req,res) {
+  var admin = new AdminUser({email: req.body.email, password: req.body.password});
+  admin.save(function(err, admin ) {
+    if (err) throw err;
+    var token = jwt.sign(admin._id, app.get('secret'), {
+          expiresIn: "1 day"
+        });
+    res.json({
+      success: true,
+      adminId: admin._id,
+      message: 'Enjoy da token',
+      token: token
+    });
+  })
+  
+});
+
 apiRoutes.post('/authenticate', function(req, res) {
-  User.findOne({email: req.body.email}, function(err, user) {
+  AdminUser.findOne({email: req.body.email}, function(err, user) {
     if(err) throw err;
     if (!user) {
       res.json({success: false, message: 'Authentication failed'});
@@ -53,7 +75,7 @@ apiRoutes.post('/authenticate', function(req, res) {
       if(user.password != req.body.password) {
         res.json({success: false, message: 'Authentication failed'})
       } else {
-        var token = jwt.sign(user, app.get('superSecret'), {
+        var token = jwt.sign(user._id, app.get('secret'), {
           expiresIn: "1 day"
         });
         res.json({
@@ -109,6 +131,8 @@ apiRoutes.get('/convos', function(req, res) {
     }
   })
 })
+
+app.use('/api', apiRoutes);
 
 app.listen(process.env.PORT || 3000, function() {
 	console.log('app is runnning on port 3000');
