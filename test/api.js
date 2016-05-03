@@ -14,10 +14,13 @@ var AdminUser = require('../app/admin-user');
 describe('API requests', function() {
   beforeEach(function() {
     AdminUser.find().remove().exec();
+    Convo.find().remove().exec();
+    var admin = new AdminUser({email: 'abd@gmail.com', password: 'password'});
+    admin.save();
   });
 
   afterEach(function() {
-    AdminUser.find().remove().exec();
+    
   })
 
   
@@ -42,4 +45,43 @@ describe('API requests', function() {
       });
   });
 
+  it("allows user to authenticate and get web token", function() {
+    request(app)
+      .post('/api/authenticate')
+      .send({
+        email: 'abd@gmail.com',
+        password: 'password'
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function(err, res) {
+        expect(res.body.token).to.exist;
+      })
+  });
+
+
+  
+  it("allows user to post convo", function(done) {
+    var admin = new AdminUser({email: 'abd@gmail.com', password: 'password'});
+    admin.save();
+    request(app)
+      .post('/api/convo')
+      .send({
+        defaultResponse: 'your done thanks',
+        convoSteps: [{name: 'first', body: 'hey hows your day', expectedResponse: 'String'}],
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfYnNvbnR5cGUiOiJPYmplY3RJRCIsImlkIjoiVyhcdTAwMWPCglx1MDAxNcK3w4PDmmo2SsKeIiwiaWF0IjoxNDYyMjQ2NTMwLCJleHAiOjE0NjIzMzI5MzB9.Us-e3m3a3t4hXgIzzdk8zfz6hA4eIGMBK4IxL89ovpI'
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function(err,res) {
+        expect(res.body.convo.defaultResponse).to.equal('your done thanks');
+        expect(res.body.convo.convoSteps).to.exist;
+      })
+      done();
+  })
+
 });
+
+

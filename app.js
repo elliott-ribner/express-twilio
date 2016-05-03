@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var jwt = require('jsonwebtoken');
 var AdminUser = require('./app/admin-user');
+var Convo = require('./app/convo');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,7 +20,6 @@ app.get('/', function(req, res) {
 
 app.post('/incoming', function(req, res) {
 	var message = new MessageRequest(req.body.body, req.body.from, req.body.to, req.body._id);
-	//console.log(req.body);
   return message.getUser().then((user) => {
     if (user) {
       return user;
@@ -104,7 +104,7 @@ apiRoutes.use(function(req, res, next) {
 })
 
 apiRoutes.post('/convo', function(req, res) {
-  var convo = new Convo({userId, message, code, defaultResponse, convoSteps});
+  var convo = new Convo({userId: req.body.userId,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
   return convo.save(function(err,convo) {
     if (err) {
       return res.status(400).send({
@@ -113,7 +113,7 @@ apiRoutes.post('/convo', function(req, res) {
         err
       });
     } else {
-      return convo;
+      return res.json({success: true, convo});
     }
   })
 });
