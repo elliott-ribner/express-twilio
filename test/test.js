@@ -17,7 +17,6 @@ describe('API requests', function() {
   before(function() {
     Convo.find().remove().exec();
     User.find().remove().exec();
-    AdminUser.find().remove().exec();
   });
 
   beforeEach(function() {
@@ -69,26 +68,26 @@ describe('API requests', function() {
       });
   });
 
-  it("should allow new user signup", function(done) {
-    request(app)
-      .post('/api/newuser')
-      .send({
-        email: 'elr8@gmail.com',
-        password: 'password'
-      })
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(201)
-      .end(function(err, res) {
-        expect(res.body).to.eql({
-          success: true,
-          adminId: res.body.adminId,
-          message: "Enjoy da token",
-          token: res.body.token
-        });
-        done();
-      });
-  })
+  // it("should allow new user signup", function(done) {
+  //   request(app)
+  //     .post('/api/newuser')
+  //     .send({
+  //       email: 'elr8@gmail.com',
+  //       password: 'password'
+  //     })
+  //     .set('Accept', 'application/json')
+  //     .expect('Content-Type', /json/)
+  //     .expect(201)
+  //     .end(function(err, res) {
+  //       expect(res.body).to.eql({
+  //         success: true,
+  //         adminId: res.body.adminId,
+  //         message: "Enjoy da token",
+  //         token: res.body.token
+  //       });
+  //       done();
+  //     });
+  // })
 
 })
 
@@ -161,6 +160,7 @@ describe('Message Process', function() {
     var message = new MessageRequest('Ron', phone, '7778889999', 'xcxc');
     return message.getUser().then((user) => {
       if (user) {
+        console.log(user);
         return user;
       } else {
         return message.createUser();
