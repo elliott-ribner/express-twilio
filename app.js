@@ -9,6 +9,7 @@ var morgan = require('morgan');
 var jwt = require('jsonwebtoken');
 var AdminUser = require('./app/admin-user');
 var Convo = require('./app/convo');
+var bcrypt = require('bcrypt');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -46,7 +47,8 @@ app.set('secret', config.secret);
 
 
 apiRoutes.post('/newuser', function(req,res) {
-  var admin = new AdminUser({email: req.body.email, password: req.body.password});
+  var hash = bcrypt.hashSync(req.body.password, 10);
+  var admin = new AdminUser({email: req.body.email, password: hash});
   admin.save(function(err, admin ) {
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {
@@ -68,10 +70,9 @@ apiRoutes.post('/authenticate', function(req, res) {
     if (!user) {
       res.json({success: false, message: 'Authentication failed'});
     } else if (user) {
-      if(user.password != req.body.password) {
-        res.json({success: false, message: 'Authentication failed'})
-      } else {
-        var token = jwt.sign(user._id, app.get('secret'), {
+      var pwMatch = bcrypt.compareSync(req.body.password, user.password);
+      if(pwMatch) {
+        var token = jwt.sign({_id:user._id}, app.get('secret'), {
           expiresIn: "1 day"
         });
         res.json({
@@ -79,6 +80,8 @@ apiRoutes.post('/authenticate', function(req, res) {
           message: 'Enjoy da token',
           token: token
         });
+      } else {
+        res.json({success: false, message: 'Authentication failed'})
       }
     }
   })
@@ -90,10 +93,16 @@ apiRoutes.use(function(req, res, next) {
     jwt.verify(token, app.get('secret'), function(err, decoded) {
       if (err) {
         return res.json({success: false, message: 'Failed to authenticate token'});
-      } else {
-        req.decoded = decoded;
-        next();
-      }
+      } else  {
+        AdminUser.findOne({_id: decoded._id}).then((user) => {
+          if (user) {
+            req.decoded = decoded;
+            next();
+          } else {
+            return res.json({success: false, message: 'no user found, failed to authenticate token'});
+          }
+        });
+      } 
     })
   } else {
     return res.status(403).send({
@@ -104,7 +113,7 @@ apiRoutes.use(function(req, res, next) {
 })
 
 apiRoutes.post('/convo', function(req, res) {
-  var convo = new Convo({userId: req.body.userId,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
+  var convo = new Convo({owner: req.decoded._id,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
   return convo.save(function(err,convo) {
     if (err) {
       return res.status(400).send({
@@ -119,7 +128,7 @@ apiRoutes.post('/convo', function(req, res) {
 });
 
 apiRoutes.get('/convos', function(req, res) {
-  Convo.find({userId: req.userId}, function(err, result) {
+  Convo.find({owner: req.userId}, function(err, result) {
     if (err) {
       return res.json({success: false, message: 'error with search'});
     } else {
