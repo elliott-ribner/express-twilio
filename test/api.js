@@ -9,13 +9,18 @@ var mongoose = require('mongoose');
 var request = require('supertest');
 var app = require('../app');
 var AdminUser = require('../app/admin-user');
+var bcrypt = require('bcrypt');
+
 
 
 describe('API requests', function() {
+  var password = 'password';
+
   beforeEach(function() {
+    var hashPass = bcrypt.hashSync(password, 10);
     AdminUser.find().remove().exec();
     Convo.find().remove().exec();
-    var admin = new AdminUser({email: 'abd@gmail.com', password: 'password'});
+    var admin = new AdminUser({email: 'abd@gmail.com', password: hashPass});
     admin.save();
   });
 

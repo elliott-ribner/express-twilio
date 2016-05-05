@@ -70,9 +70,8 @@ apiRoutes.post('/authenticate', function(req, res) {
     if (!user) {
       res.json({success: false, message: 'Authentication failed'});
     } else if (user) {
-      if(user.password != req.body.password) {
-        res.json({success: false, message: 'Authentication failed'})
-      } else {
+      var pwMatch = bcrypt.compareSync(req.body.password, user.password);
+      if(pwMatch) {
         var token = jwt.sign({_id:user._id}, app.get('secret'), {
           expiresIn: "1 day"
         });
@@ -81,6 +80,8 @@ apiRoutes.post('/authenticate', function(req, res) {
           message: 'Enjoy da token',
           token: token
         });
+      } else {
+        res.json({success: false, message: 'Authentication failed'})
       }
     }
   })
