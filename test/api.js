@@ -19,10 +19,7 @@ describe('API requests', function() {
     admin.save();
   });
 
-  afterEach(function() {
-    
-  })
-
+  
   
     it("should allow new user signup", function(done) {
     request(app)
