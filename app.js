@@ -71,7 +71,7 @@ apiRoutes.post('/authenticate', function(req, res) {
       if(user.password != req.body.password) {
         res.json({success: false, message: 'Authentication failed'})
       } else {
-        var token = jwt.sign(user._id, app.get('secret'), {
+        var token = jwt.sign({_id:user._id}, app.get('secret'), {
           expiresIn: "1 day"
         });
         res.json({
@@ -90,10 +90,18 @@ apiRoutes.use(function(req, res, next) {
     jwt.verify(token, app.get('secret'), function(err, decoded) {
       if (err) {
         return res.json({success: false, message: 'Failed to authenticate token'});
-      } else {
-        req.decoded = decoded;
-        next();
-      }
+      } else  {
+        console.log(decoded);
+        AdminUser.findOne({_id: decoded._id}).then((user) => {
+          if (user) {
+            console.log(decoded);
+            req.decoded = decoded;
+            next();
+          } else {
+            return res.json({success: false, message: 'no user found, failed to authenticate token'});
+          }
+        })
+      } 
     })
   } else {
     return res.status(403).send({

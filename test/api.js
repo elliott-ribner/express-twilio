@@ -67,7 +67,7 @@ describe('API requests', function() {
       .send({
         defaultResponse: 'your done thanks',
         convoSteps: [{name: 'first', body: 'hey hows your day', expectedResponse: 'String'}],
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfYnNvbnR5cGUiOiJPYmplY3RJRCIsImlkIjoiVyhcdTAwMWPCglx1MDAxNcK3w4PDmmo2SsKeIiwiaWF0IjoxNDYyMjQ2NTMwLCJleHAiOjE0NjIzMzI5MzB9.Us-e3m3a3t4hXgIzzdk8zfz6hA4eIGMBK4IxL89ovpI'
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1NzJhYjVjZDQzN2VkYzU2OTM0ZTg1ODYiLCJpYXQiOjE0NjI0MTY4NDUsImV4cCI6MTQ2MjUwMzI0NX0._2mCdSG97AtlHQ74ap7qmMbLXrG8tY8RBTV2GAoRtQM'
       })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
