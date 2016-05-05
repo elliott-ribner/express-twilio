@@ -17,3 +17,5 @@ X Add test to mimic post request
 - Deploy to heroku
 
 - Add ability to make new workflows through api
+
+- bcrypt password

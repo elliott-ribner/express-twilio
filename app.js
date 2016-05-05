@@ -91,16 +91,14 @@ apiRoutes.use(function(req, res, next) {
       if (err) {
         return res.json({success: false, message: 'Failed to authenticate token'});
       } else  {
-        console.log(decoded);
         AdminUser.findOne({_id: decoded._id}).then((user) => {
           if (user) {
-            console.log(decoded);
             req.decoded = decoded;
             next();
           } else {
             return res.json({success: false, message: 'no user found, failed to authenticate token'});
           }
-        })
+        });
       } 
     })
   } else {
@@ -112,7 +110,7 @@ apiRoutes.use(function(req, res, next) {
 })
 
 apiRoutes.post('/convo', function(req, res) {
-  var convo = new Convo({userId: req.body.userId,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
+  var convo = new Convo({owner: req.decoded._id,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
   return convo.save(function(err,convo) {
     if (err) {
       return res.status(400).send({
@@ -127,7 +125,7 @@ apiRoutes.post('/convo', function(req, res) {
 });
 
 apiRoutes.get('/convos', function(req, res) {
-  Convo.find({userId: req.userId}, function(err, result) {
+  Convo.find({owner: req.userId}, function(err, result) {
     if (err) {
       return res.json({success: false, message: 'error with search'});
     } else {
