@@ -9,6 +9,7 @@ var morgan = require('morgan');
 var jwt = require('jsonwebtoken');
 var AdminUser = require('./app/admin-user');
 var Convo = require('./app/convo');
+var bcrypt = require('bcrypt');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -46,7 +47,8 @@ app.set('secret', config.secret);
 
 
 apiRoutes.post('/newuser', function(req,res) {
-  var admin = new AdminUser({email: req.body.email, password: req.body.password});
+  var hash = bcrypt.hashSync(req.body.password, 10);
+  var admin = new AdminUser({email: req.body.email, password: hash});
   admin.save(function(err, admin ) {
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {

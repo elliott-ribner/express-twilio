@@ -20,26 +20,30 @@ describe('API requests', function() {
   });
 
   
-  
-    it("should allow new user signup", function(done) {
-    request(app)
-      .post('/api/newuser')
-      .send({
-        email: 'elr8@gmail.com',
-        password: 'password'
-      })
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(201)
-      .end(function(err, res) {
-        expect(res.body).to.eql({
-          success: true,
-          adminId: res.body.adminId,
-          message: "Enjoy da token",
-          token: res.body.token
-        });
-        done();
+
+  it("should allow new user signup", function(done) {
+  request(app)
+    .post('/api/newuser')
+    .send({
+      email: 'el@gmail.com',
+      password: 'password'
+    })
+    .set('Accept', 'application/json')
+    .expect('Content-Type', /json/)
+    .expect(201)
+    .end(function(err, res) {
+      expect(res.body).to.eql({
+        success: true,
+        adminId: res.body.adminId,
+        message: "Enjoy da token",
+        token: res.body.token
       });
+      return AdminUser.findOne({_id: res.body.adminId}).then((user) => {
+        expect(user.email).to.eql('el@gmail.com');
+        done();
+      })
+      
+    });
   });
 
   it("allows user to authenticate and get web token", function(done) {
