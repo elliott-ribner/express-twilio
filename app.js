@@ -10,20 +10,8 @@ var jwt = require('jsonwebtoken');
 var AdminUser = require('./app/admin-user');
 var Convo = require('./app/convo');
 var bcrypt = require('bcrypt');
+var cors = require('cors');
 
-var allowCrossDomain = function(req, res, next) {
-    if ('OPTIONS' == req.method) {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-      res.status(200).send({success: true});
-    }
-    else {
-      next();
-    }
-};
-
-app.use(allowCrossDomain);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
@@ -59,8 +47,9 @@ var apiRoutes = express.Router();
 
 app.set('secret', config.secret);
 
+apiRoutes.options('/newuser', cors());
 
-apiRoutes.post('/newuser', function(req,res) {
+apiRoutes.post('/newuser', cors(), function(req,res) {
   console.log('request is',req);
   console.log('body is',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
