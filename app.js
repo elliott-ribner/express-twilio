@@ -12,10 +12,14 @@ var Convo = require('./app/convo');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
 
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('dev'));
-
+app.all('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+  next();
+ });
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
@@ -43,13 +47,13 @@ app.post('/incoming', function(req, res) {
 });
 
 /// routes for posting new conversations and downloading conversatings
-app.options('*', cors());
+// app.options('*', cors());
 var apiRoutes = express.Router();
 
 app.set('secret', config.secret);
 
 
-apiRoutes.post('/newuser', cors(), function(req,res) {
+apiRoutes.post('/newuser', function(req,res) {
   console.log('request is',req);
   console.log('body is',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
