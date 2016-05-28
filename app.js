@@ -15,11 +15,14 @@ var cors = require('cors');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('dev'));
-app.all('/', function(req, res, next) {
+app.use('/', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
   next();
  });
+app.options('*', function(req, res, next){
+    res.end();
+})
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
@@ -72,6 +75,7 @@ apiRoutes.post('/newuser', function(req,res) {
   //     token: token
   //   });
   // })
+  //temp test
   res.status(200).send({success: true});
   
 });
