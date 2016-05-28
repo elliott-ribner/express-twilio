@@ -1,5 +1,6 @@
 "use strict";
 var express = require('express');
+var cors = require('cors')
 var MessageRequest = require('./app/message-process.js');
 var app = express();
 var mongoose = require('mongoose');
@@ -14,12 +15,12 @@ var bcrypt = require('bcrypt');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
-app.use(function(req,res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  next();
-});
+// app.use(function(req,res, next) {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+//   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+//   next();
+// });
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
