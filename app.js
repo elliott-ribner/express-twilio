@@ -1,6 +1,5 @@
 "use strict";
 var express = require('express');
-var cors = require('cors')
 var MessageRequest = require('./app/message-process.js');
 var app = express();
 var mongoose = require('mongoose');
