@@ -59,6 +59,12 @@ apiRoutes.post('/newuser', function(req,res) {
   var hash = bcrypt.hashSync(req.body.password, 10);
   var admin = new AdminUser({email: req.body.email, password: hash});
   admin.save(function(err, admin ) {
+    if(err) {
+      console.log(err);
+    }
+    if(admin) {
+      console.log(admin);
+    }
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {
           expiresIn: "1 day"
