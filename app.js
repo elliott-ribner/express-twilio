@@ -61,12 +61,6 @@ apiRoutes.post('/newuser', function(req,res) {
   var admin = new AdminUser({email: req.body.email, password: hash});
   console.log('admin',admin);
   // admin.save(function(err, admin ) {
-  //   if(err) {
-  //     console.log('err',err);
-  //   }
-  //   if(admin) {
-  //     console.log('admin',admin);
-  //   }
   //   if (err) throw err;
   //   var token = jwt.sign(admin._id, app.get('secret'), {
   //         expiresIn: "1 day"
@@ -78,13 +72,7 @@ apiRoutes.post('/newuser', function(req,res) {
   //     token: token
   //   });
   // })
-  // test
-  res.json({
-      success: true,
-      adminId: '545433',
-      message: 'Enjoy da token',
-      token: '2212332'
-    });
+  res.status(200).send({success: true});
   
 });
 
