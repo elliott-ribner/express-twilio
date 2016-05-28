@@ -53,7 +53,7 @@ app.set('secret', config.secret);
 
 
 apiRoutes.post('/newuser', function(req,res) {
-  console.log(req.body);
+  console.log('body is',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
   var admin = new AdminUser({email: req.body.email, password: hash});
   admin.save(function(err, admin ) {
