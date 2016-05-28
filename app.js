@@ -20,6 +20,7 @@ app.use('/', function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
   next();
  });
+
 app.options('*', function(req, res, next){
     res.end();
 })
@@ -49,12 +50,9 @@ app.post('/incoming', function(req, res) {
   })
 });
 
-/// routes for posting new conversations and downloading conversatings
-// app.options('*', cors());
 var apiRoutes = express.Router();
 
 app.set('secret', config.secret);
-
 
 apiRoutes.post('/newuser', function(req,res) {
   console.log('request is',req);
@@ -63,20 +61,19 @@ apiRoutes.post('/newuser', function(req,res) {
   console.log('hash', hash);
   var admin = new AdminUser({email: req.body.email, password: hash});
   console.log('admin',admin);
-  // admin.save(function(err, admin ) {
-  //   if (err) throw err;
-  //   var token = jwt.sign(admin._id, app.get('secret'), {
-  //         expiresIn: "1 day"
-  //       });
-  //   res.json({
-  //     success: true,
-  //     adminId: admin._id,
-  //     message: 'Enjoy da token',
-  //     token: token
-  //   });
-  // })
-  //temp test
-  res.status(200).send({success: true});
+  admin.save(function(err, admin ) {
+    if (err) throw err;
+    var token = jwt.sign(admin._id, app.get('secret'), {
+          expiresIn: "1 day"
+        });
+    res.json({
+      success: true,
+      adminId: admin._id,
+      message: 'Enjoy da token',
+      token: token
+    });
+  })
+  
   
 });
 
