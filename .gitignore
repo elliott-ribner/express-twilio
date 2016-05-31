@@ -39,3 +39,4 @@ Thumbs.db
 
 # above is from github suggestions, below is my own #
 node_modules/
+server/config

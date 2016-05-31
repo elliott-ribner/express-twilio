@@ -12,6 +12,16 @@ var Convo = require('./app/convo');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
 
+//mongo connection
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
+                replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+var mongodbUri = config.db.url;
+mongoose.connect(mongodbUri, options);
+var conn = mongoose.connection;             
+conn.on('error', console.error.bind(console, 'connection error:'));  
+//end mongo connection section
+
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('dev'));
@@ -56,14 +66,11 @@ var apiRoutes = express.Router();
 app.set('secret', config.secret);
 
 apiRoutes.post('/newuser', function(req,res) {
-  console.log('request is',req);
-  console.log('body is',req.body);
+  console.log('body',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
-  console.log('hash', hash);
   var admin = new AdminUser({email: req.body.email, password: hash});
-  console.log('admin',admin);
   admin.save(function(err, admin ) {
-    console.log('in save');
+    console.log('saved');
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {
           expiresIn: "1 day"
@@ -90,7 +97,7 @@ apiRoutes.post('/authenticate', function(req, res) {
         var token = jwt.sign({_id:user._id}, app.get('secret'), {
           expiresIn: "1 day"
         });
-        res.json({
+        res.status(200).send({
           success: true,
           message: 'Enjoy da token',
           token: token
@@ -155,8 +162,8 @@ apiRoutes.get('/convos', function(req, res) {
 app.use('/api', apiRoutes);
 
 
-app.listen(process.env.PORT || 3000, function() {
-	console.log(`app is runnning on port ${process.env.PORT || 3000}`);
+app.listen(process.env.PORT || 4000, function() {
+	console.log(`app is runnning on port ${process.env.PORT || 4000}`);
 })
 
 
