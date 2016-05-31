@@ -15,6 +15,7 @@ var cors = require('cors');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('dev'));
+
 app.use('/', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
@@ -62,6 +63,7 @@ apiRoutes.post('/newuser', function(req,res) {
   var admin = new AdminUser({email: req.body.email, password: hash});
   console.log('admin',admin);
   admin.save(function(err, admin ) {
+    console.log('in save');
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {
           expiresIn: "1 day"
