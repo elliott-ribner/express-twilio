@@ -19,6 +19,7 @@ var mongodbUri = config.db.url;
 mongoose.connect(mongodbUri, options);
 var conn = mongoose.connection;             
 conn.on('error', console.error.bind(console, 'connection error:'));  
+
 //end mongo connection section
 
 
@@ -33,6 +34,7 @@ app.use('/', function(req, res, next) {
  });
 
 app.options('*', function(req, res, next){
+    console.log(req);
     res.end();
 })
 
@@ -69,6 +71,7 @@ apiRoutes.post('/newuser', function(req,res) {
   console.log('body',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
   var admin = new AdminUser({email: req.body.email, password: hash});
+  console.log(admin);
   admin.save(function(err, admin ) {
     console.log('saved');
     if (err) throw err;
