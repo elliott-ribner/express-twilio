@@ -12,10 +12,31 @@ var Convo = require('./app/convo');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
 
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true}));
+//mongo connection
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
+                replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+var mongodbUri = config.db.url;
+mongoose.connect(mongodbUri, options);
+var conn = mongoose.connection;             
+conn.on('error', console.error.bind(console, 'connection error:'));  
+
+//end mongo connection section
+
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('dev'));
 
+app.use('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+  next();
+ });
+
+app.options('*', function(req, res, next){
+    console.log(req);
+    res.end();
+})
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
@@ -42,19 +63,17 @@ app.post('/incoming', function(req, res) {
   })
 });
 
-/// routes for posting new conversations and downloading conversatings
-app.options('*', cors());
 var apiRoutes = express.Router();
 
 app.set('secret', config.secret);
 
-
-apiRoutes.post('/newuser', cors(), function(req,res) {
-  console.log('request is',req);
-  console.log('body is',req.body);
+apiRoutes.post('/newuser', function(req,res) {
+  console.log('body',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
   var admin = new AdminUser({email: req.body.email, password: hash});
+  console.log(admin);
   admin.save(function(err, admin ) {
+    console.log('saved');
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {
           expiresIn: "1 day"
@@ -66,6 +85,7 @@ apiRoutes.post('/newuser', cors(), function(req,res) {
       token: token
     });
   })
+  
   
 });
 
@@ -80,7 +100,7 @@ apiRoutes.post('/authenticate', function(req, res) {
         var token = jwt.sign({_id:user._id}, app.get('secret'), {
           expiresIn: "1 day"
         });
-        res.json({
+        res.status(200).send({
           success: true,
           message: 'Enjoy da token',
           token: token
@@ -118,6 +138,7 @@ apiRoutes.use(function(req, res, next) {
 })
 
 apiRoutes.post('/convo', function(req, res) {
+  console.log('default',req.body.defaultResponse)
   var convo = new Convo({owner: req.decoded._id,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
   return convo.save(function(err,convo) {
     if (err) {
@@ -145,8 +166,8 @@ apiRoutes.get('/convos', function(req, res) {
 app.use('/api', apiRoutes);
 
 
-app.listen(process.env.PORT || 3000, function() {
-	console.log(`app is runnning on port ${process.env.PORT || 3000}`);
+app.listen(process.env.PORT || 4000, function() {
+	console.log(`app is runnning on port ${process.env.PORT || 4000}`);
 })
 
 

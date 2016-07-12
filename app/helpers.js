@@ -11,7 +11,6 @@ module.exports = {
     }
   },
   correctResponse(expected) {
-    console.log('hello',expected);
     switch(expected) {
       case 'String': 
         return 'Please respond with text.';
