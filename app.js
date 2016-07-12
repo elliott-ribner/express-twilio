@@ -138,6 +138,7 @@ apiRoutes.use(function(req, res, next) {
 })
 
 apiRoutes.post('/convo', function(req, res) {
+  console.log('default',req.body.defaultResponse)
   var convo = new Convo({owner: req.decoded._id,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
   return convo.save(function(err,convo) {
     if (err) {
