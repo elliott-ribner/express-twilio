@@ -19,7 +19,6 @@ var mongodbUri = config.db.url;
 mongoose.connect(mongodbUri, options);
 var conn = mongoose.connection;             
 conn.on('error', console.error.bind(console, 'connection error:'));  
-
 //end mongo connection section
 
 
