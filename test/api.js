@@ -11,20 +11,146 @@ var app = require('../app');
 var AdminUser = require('../app/admin-user');
 var bcrypt = require('bcrypt');
 
+describe('CSV API request', function() {
+  let admin, convo, user1, user2, token;
 
+  beforeEach(function() {
+    let password = "password";
+    var hashPass = bcrypt.hashSync(password, 10);
+    return Promise.resolve()
+    .then(() => {
+      AdminUser.find().remove().exec();
+      Convo.find().remove().exec();
+      return User.find().remove().exec();
+    })
+    .then(() => {
+      admin = new AdminUser({email: 'abd@gmail.com', password: hashPass});
+      return admin.save();
+    })
+    .then(() => {
+      convo = new Convo({
+        owner: admin._id,
+        defaultResponse: "Thanks for messaging with me budday",
+        convoSteps: [
+          {
+            name: "first name",
+            body: "whats your first name pal",
+            expectedResponse: "String"
+          },
+          {
+            name: "age",
+            body: "How old are you?",
+            expectedResponse: "Number"
+          }
+        ]
+      });
+      return convo.save();
+    })
+    .then(() => {
+      user1 = new User({
+        phoneNumber: "1112221111",
+        step: 2,
+        workflowId: convo._id,
+        responses: [
+          {
+            question: "whats your first name pal",
+            userReply: "Randy"
+          },
+          {
+            question: "How old are you?",
+            userReply: "24"
+          }
+        ]
+      });
+      return user1.save();
+    })
+    .then(() => {
+      user2 = new User({
+        phoneNumber: "2221112222",
+        step: 2,
+        workflowId: convo._id,
+        responses: [
+          {
+            question: "whats your first name pal",
+            userReply: "Sally"
+          },
+          {
+            question: "How old are you?",
+            userReply: "31"
+          }
+        ]
+      });
+      return user2.save();
+    }).then(() => {
+      return new Promise(function(resolve, reject) {
+        request(app)
+          .post('/api/authenticate')
+          .send({
+            email: 'abd@gmail.com',
+            password: 'password'
+          })
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function(err, res) {
+            expect(res.body.token).to.exist;
+            token = res.body.token;
+            resolve();
+          });
+      })
+    })
+  });
 
-describe('API requests', function() {
+  afterEach(function() {
+    AdminUser.find().remove().exec();
+    Convo.find().remove().exec();
+    User.find().remove().exec();
+  })
+
+  it("returns csv array at /api/repsonses", function(done) {
+    request(app)
+      .get('/api/responses')
+      .send({workflowId: convo._id, token})
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function(err, res) {
+        let csvArray = res.body.csvArray;
+        expect(csvArray.length).to.eql(3);
+        expect(csvArray[2]).to.eql([
+          "2221112222",
+          "Sally",
+          "31"
+          ]);
+        expect(csvArray[0]).to.eql([
+          "Phone Number",
+          "first name",
+          "age"
+          ]);
+        done();
+      })
+  });
+
+})
+
+describe('basic API requests', function() {
   var password = 'password';
 
   beforeEach(function() {
     var hashPass = bcrypt.hashSync(password, 10);
     AdminUser.find().remove().exec();
     Convo.find().remove().exec();
+    User.find().remove().exec();
     var admin = new AdminUser({email: 'abd@gmail.com', password: hashPass});
     admin.save();
   });
 
-  
+  afterEach(function() {
+    AdminUser.find().remove().exec();
+    Convo.find().remove().exec();
+    User.find().remove().exec();
+  })
+
 
   it("should allow new user signup", function(done) {
   request(app)

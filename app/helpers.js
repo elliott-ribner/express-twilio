@@ -1,5 +1,5 @@
 module.exports = {
-  validResponseType(actual, expected) { //actual is input body from user, expected is the type (string, number etc)
+  validResponseType(actual, expected) { //actual is input body from user, expected is the type (String, Number etc)
     switch(expected) {
       case 'String':
         return true
