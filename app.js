@@ -103,7 +103,8 @@ apiRoutes.post('/authenticate', function(req, res) {
         res.status(200).send({
           success: true,
           message: 'Enjoy da token',
-          token: token
+          token: token,
+          adminId: user._id
         });
       } else {
         res.json({success: false, message: 'Authentication failed'})
