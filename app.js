@@ -155,7 +155,7 @@ apiRoutes.post('/convo', function(req, res) {
 });
 
 apiRoutes.get('/convos', function(req, res) {
-  Convo.find({owner: req.userId}, function(err, result) {
+  Convo.find({owner: req.body.userId}, function(err, result) {
     if (err) {
       return res.json({success: false, message: 'error with search'});
     } else {
