@@ -14,6 +14,9 @@ class MessageRequest {
 	findResponse() {
 		return Convo.findOne({phoneNumber: this.to}) // right now there is only one convo but in the futrue we will to search them
 		.then((convo) => {
+			if (!this.user.workflowId) {
+				this.user.workflowId = convo._id;
+			}
 			if (convo.convoSteps[this.user.step]) {
 				this.response = convo.convoSteps[this.user.step].body;
 				if (this.user.step > 0) { // save prev response to be saved with the message the user sent
@@ -43,14 +46,16 @@ class MessageRequest {
 		}.bind(this));
 	}
 	createUser() {
-		var user = new User({phoneNumber: this.sender, step: 0, workflowId: 'shouldBeUniqueIdentifier'});
+		var user = new User({phoneNumber: this.sender, step: 0});
 		return user.save(function(err, user) {
 			this.user = user;
 		}.bind(this));
 	}
 	incrementStep() {
-		if(!this.validResponse) {return; };
-		this.user.step ++;
+		if(this.validResponse) {
+			this.user.step ++;
+		 };
+		 console.log(this.user);
 		return this.user.save();
 	}
 }

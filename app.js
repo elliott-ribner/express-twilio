@@ -11,6 +11,7 @@ var AdminUser = require('./app/admin-user');
 var Convo = require('./app/convo');
 var bcrypt = require('bcrypt');
 var cors = require('cors');
+var User = require('./app/models');
 
 //mongo connection
 var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
@@ -102,7 +103,8 @@ apiRoutes.post('/authenticate', function(req, res) {
         res.status(200).send({
           success: true,
           message: 'Enjoy da token',
-          token: token
+          token: token,
+          adminId: user._id
         });
       } else {
         res.json({success: false, message: 'Authentication failed'})
@@ -159,6 +161,33 @@ apiRoutes.get('/convos', function(req, res) {
     } else {
       return res.json({success: true, data: result});
     }
+  })
+});
+
+apiRoutes.get('/responses', function(req, res) {
+  let wfId = req.body.workflowId;
+  let responseArray = [[]];
+  return Convo.findOne({_id: wfId})
+  .then((convo) => {
+    let steps = convo.convoSteps;
+    steps.forEach(function(step) {
+      responseArray[0].push(step.name);
+    });
+    responseArray[0].unshift("Phone Number");
+  })
+  .then(() => {
+    return User.find({workflowId: wfId});
+  })
+  .then((users) => {
+    users.forEach(function(user) {
+      let userResponses = [user.phoneNumber];
+      user.responses.forEach(function(response) {
+        userResponses.push(response.userReply)
+      });
+      responseArray.push(userResponses);
+    });
+  }).then(() => {
+    return res.json({success: true, csvArray: responseArray});
   })
 })
 

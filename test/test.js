@@ -9,8 +9,8 @@ var mongoose = require('mongoose');
 var request = require('supertest');
 var app = require('../app');
 
-mongoose.connect(config.db.url);
-
+mongoose.createConnection(config.db.url);
+console.log(config.db.url);
 describe('API requests', function() {
   before(function() {
     Convo.find().remove().exec();
