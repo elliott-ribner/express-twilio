@@ -68,12 +68,9 @@ var apiRoutes = express.Router();
 app.set('secret', config.secret);
 
 apiRoutes.post('/newuser', function(req,res) {
-  console.log('body',req.body);
   var hash = bcrypt.hashSync(req.body.password, 10);
   var admin = new AdminUser({email: req.body.email, password: hash});
-  console.log(admin);
   admin.save(function(err, admin ) {
-    console.log('saved');
     if (err) throw err;
     var token = jwt.sign(admin._id, app.get('secret'), {
           expiresIn: "1 day"
@@ -139,7 +136,6 @@ apiRoutes.use(function(req, res, next) {
 })
 
 apiRoutes.post('/convo', function(req, res) {
-  console.log('default',req.body.defaultResponse)
   var convo = new Convo({owner: req.decoded._id,  defaultResponse: req.body.defaultResponse, convoSteps: req.body.convoSteps });
   return convo.save(function(err,convo) {
     if (err) {
@@ -155,8 +151,7 @@ apiRoutes.post('/convo', function(req, res) {
 });
 
 apiRoutes.get('/convos', function(req, res) {
-  console.log(req.body.userId);
-  Convo.findOne({}, function(err, result) {
+  Convo.find({owner: req.body.userId}, function(err, result) {
     if (err) {
       return res.json({success: false, message: 'error with search'});
     } else {

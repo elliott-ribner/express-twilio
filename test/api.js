@@ -107,29 +107,46 @@ describe('CSV API request', function() {
     User.find().remove().exec();
   })
 
-  it("returns csv array at /api/repsonses", function(done) {
+
+ 
+  it("returns convo ids given adminuser ids", function(done) {
     request(app)
-      .get('/api/responses')
-      .send({workflowId: convo._id, token})
+      .get('/api/convos')
+      .send({email: 'abd@gmail.com', userId: admin._id, token})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200)
       .end(function(err, res) {
-        let csvArray = res.body.csvArray;
-        expect(csvArray.length).to.eql(3);
-        expect(csvArray[2]).to.eql([
-          "2221112222",
-          "Sally",
-          "31"
-          ]);
-        expect(csvArray[0]).to.eql([
-          "Phone Number",
-          "first name",
-          "age"
-          ]);
+        expect(res.body.success).to.be.true;
+        expect(res.body.data.length).to.eql(1);
         done();
       })
-  });
+  })
+  
+    it("returns csv array at /api/repsonses", function(done) {
+      request(app)
+        .get('/api/responses')
+        .send({workflowId: convo._id, token})
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end(function(err, res) {
+          let csvArray = res.body.csvArray;
+          expect(csvArray.length).to.eql(3);
+          expect(csvArray[2]).to.eql([
+            "2221112222",
+            "Sally",
+            "31"
+            ]);
+          expect(csvArray[0]).to.eql([
+            "Phone Number",
+            "first name",
+            "age"
+            ]);
+          done();
+        })
+    });
+
 
 })
 
