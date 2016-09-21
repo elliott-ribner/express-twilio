@@ -155,6 +155,7 @@ apiRoutes.get('/convos', function(req, res) {
     if (err) {
       return res.json({success: false, message: 'error with search'});
     } else {
+      console.log("result", result);
       return res.json({success: true, data: result});
     }
   })
