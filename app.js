@@ -43,8 +43,7 @@ app.get('/', function(req, res) {
 });
 
 app.post('/incoming', function(req, res) {
-  console.log(req.body);
-	var message = new MessageRequest(req.body.body, req.body.from, req.body.to, req.body._id);
+	var message = new MessageRequest(req.body, req.body.From, req.body.To, req.body.SmsMessageSid);
   return message.getUser().then((user) => {
     if (user) {
       return user;

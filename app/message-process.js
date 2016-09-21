@@ -46,7 +46,6 @@ class MessageRequest {
 		}.bind(this));
 	}
 	createUser() {
-		console.log("sender is",this.sender);
 		var user = new User({phoneNumber: this.sender, step: 0});
 		return user.save(function(err, user) {
 			this.user = user;
