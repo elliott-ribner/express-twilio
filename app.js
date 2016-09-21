@@ -44,7 +44,7 @@ app.get('/', function(req, res) {
 
 app.post('/incoming', function(req, res) {
   var fromNumber = req.body.From.slice(2);
-	var message = new MessageRequest(req.body, fromNumber, req.body.To, req.body.SmsMessageSid);
+	var message = new MessageRequest(req.body, fromNumber, req.body.to, req.body.SmsMessageSid);
   return message.getUser().then((user) => {
     if (user) {
       return user;
