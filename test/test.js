@@ -8,6 +8,7 @@ var User = require('../app/models');
 var mongoose = require('mongoose');
 var request = require('supertest');
 var app = require('../app');
+var AdminUser = require('../app/admin-user');
 
 mongoose.createConnection(config.db.url);
 console.log(config.db.url);
@@ -46,6 +47,8 @@ describe('API requests', function() {
   afterEach(function() {
     Convo.find().remove().exec();
     User.find().remove().exec();
+    AdminUser.find().remove().exec();
+
   });
 
   it("should allow valid post request for new user", function(done) {
@@ -62,8 +65,12 @@ describe('API requests', function() {
       .expect(201)
       .end(function(err,resp) {
         expect(resp.text).to.equal('<Response><Sms>Whats your first name</Sms></Response>');
-        done();
-      });
+        return User.findOne({phoneNumber: "9991112222"})
+        .then((user)=> {
+          expect(user.phoneNumber).to.eql("9991112222")
+          done();
+        })
+      })
   });
 
 })
