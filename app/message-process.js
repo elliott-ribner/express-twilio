@@ -2,6 +2,7 @@
 let User = require('./models');
 let Convo = require('./convo');
 let helpers = require('./helpers');
+let dot = require("dot-get");
 
 class MessageRequest {
 	constructor(body,sender,to,id) {
@@ -21,14 +22,14 @@ class MessageRequest {
 			if (!this.user.workflowId) {
 				this.user.workflowId = convo._id;
 			}
-			if (convo.convoSteps[this.user.step]) {
-				this.response = convo.convoSteps[this.user.step].body;
+
+			if (convo.convoSteps[this.user.step] || convo.convoSteps[this.user.step -1]) {
+				this.response = dot.get(convo.convoSteps[this.user.step], "body") || convo.defaultResponse;
 				if (this.user.step > 0) { // save prev response to be saved with the message the user sent
 					this.previousPrompt = convo.convoSteps[this.user.step -1].body;
-					
-					if (!helpers.validResponseType(this.body, convo.convoSteps[this.user.step].expectedResponse)) {
+					if (!helpers.validResponseType(this.text, convo.convoSteps[this.user.step-1].expectedResponse)) {
 						this.validResponse = false;
-						this.response = helpers.correctResponse(convo.convoSteps[this.user.step].expectedResponse);
+						this.response = helpers.correctResponse(convo.convoSteps[this.user.step-1].expectedResponse);
 					}
 				}
 				return this.response;
@@ -39,17 +40,12 @@ class MessageRequest {
 		});
 	}
 	saveUserResponse() {
-		console.log("prev prompt",!this.previousPrompt)
-		console.log("valid", !this.validResponse);
 		if (!this.previousPrompt || !this.validResponse) {return; }
 		let response = {question: this.previousPrompt, userReply: this.text };
-		console.log("response to save",response);
 		return User.findOneAndUpdate({_id:this.user._id}, {$push: {responses: response}},{upsert: true}, function(err, doc) {
 			if (err) {
 				console.log(err);
-			} else {
-				console.log(doc);
-			}
+			} 
 		});
 
 	}

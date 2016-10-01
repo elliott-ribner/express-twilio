@@ -141,7 +141,7 @@ describe('Message Process', function() {
     let phone = '9998887777'
     var user = new User({phoneNumber: phone, step: 1, workflowId: '2x'});
     user.save();
-    var message = new MessageRequest('Ron', phone, '7778889999', 'xcxc');
+    var message = new MessageRequest({Body: 'Ron'}, phone, '7778889999', 'xcxc');
     return message.getUser().then((user) => {
       if (user) {
         return user;
@@ -164,7 +164,6 @@ describe('Message Process', function() {
     .then(() => {
       return User.findOne({phoneNumber: phone}).lean();
     }).then((queryResult) => {
-      console.log(queryResult);
       return expect(queryResult.responses[0]).to.eql({
         userReply: 'Ron',
         question: 'Whats your first name',
@@ -173,11 +172,48 @@ describe('Message Process', function() {
     })
   });
 
+  it("should return default message for existing user who is already on step 3", function() {
+    let phone = '9998887777'
+    var user = new User({phoneNumber: phone, step: 3, workflowId: '2x'});
+    user.save();
+    var message = new MessageRequest({Body:'1'}, phone, '7778889999', 'xcxc');
+    return message.getUser().then((user) => {
+      if (user) {
+        return user;
+      } else {
+        return message.createUser();
+      }
+    })
+    .then(() => {
+      return message.findResponse();
+    })
+    .then(() => {
+      return message.saveUserResponse();
+    })
+    .then(() => {
+      return message.incrementStep();
+    })
+    .then(() => {
+      expect(message.response).to.eql('the convo is over this is default mesage');
+    })
+    .then(() => {
+      return User.findOne({phoneNumber: phone}).lean();
+    }).then((queryResult) => {
+      return expect(queryResult.responses[0]).to.eql({
+        userReply: '1',
+        question: 'How many people are in your party',
+        _id: queryResult.responses[0]._id
+      });
+    })
+  });
+
+
+
   it("should return invalid type response when inputted does not match expected type", function() {
     let phone = '9998887777'
-    var user = new User({phoneNumber: phone, step: 2, workflowId: '2x'});
+    var user = new User({phoneNumber: phone, step: 3, workflowId: '2x'});
     user.save();
-    var message = new MessageRequest('Three', phone, '7778889999', 'xcxc');
+    var message = new MessageRequest({Body: 'Three'}, phone, '7778889999', 'xcxc');
     return message.getUser().then((user) => {
       if (user) {
         return user;
@@ -200,7 +236,7 @@ describe('Message Process', function() {
     .then(() => {
       return User.findOne({phoneNumber: phone}).lean();
     }).then((queryResult) => {
-      expect(queryResult.step).to.eql(2);
+      expect(queryResult.step).to.eql(3);
     })
   });
 
