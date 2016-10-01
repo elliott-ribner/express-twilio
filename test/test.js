@@ -164,6 +164,7 @@ describe('Message Process', function() {
     .then(() => {
       return User.findOne({phoneNumber: phone}).lean();
     }).then((queryResult) => {
+      console.log(queryResult);
       return expect(queryResult.responses[0]).to.eql({
         userReply: 'Ron',
         question: 'Whats your first name',
