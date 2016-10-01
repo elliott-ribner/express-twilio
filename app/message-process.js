@@ -34,7 +34,7 @@ class MessageRequest {
 			}
 		});
 	}
-	saveResponse() {
+	saveUserResponse() {
 		if (!this.previousPrompt || !this.validResponse) {return; }
 		let response = {question: this.previousPrompt, userReply: this.body };
 		return User.findOneAndUpdate({_id:this.user._id}, {$push: {responses: response}},{upsert: true}, function(err, doc) {});
@@ -55,7 +55,6 @@ class MessageRequest {
 		if(this.validResponse) {
 			this.user.step ++;
 		 };
-		 console.log(this.user);
 		return this.user.save();
 	}
 }

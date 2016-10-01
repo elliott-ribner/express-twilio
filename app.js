@@ -36,7 +36,7 @@ app.use('/', function(req, res, next) {
 app.options('*', function(req, res, next){
     console.log(req);
     res.end();
-})
+});
 
 app.get('/', function(req, res) {
 	res.send('yep im working bud');
@@ -44,7 +44,8 @@ app.get('/', function(req, res) {
 
 app.post('/incoming', function(req, res) {
   var fromNumber = req.body.From.slice(2);
-	var message = new MessageRequest(req.body, fromNumber, req.body.to, req.body.SmsMessageSid);
+  var toNumber = req.body.To.slice(2);
+	var message = new MessageRequest(req.body, fromNumber, toNumber, req.body.SmsMessageSid);
   return message.getUser().then((user) => {
     if (user) {
       return user;
@@ -54,6 +55,9 @@ app.post('/incoming', function(req, res) {
   })
   .then(() => {
     return message.findResponse();
+  })
+  .then(()=> {
+    return message.saveUserResponse();
   })
   .then(() => {
     return message.incrementStep();

@@ -56,8 +56,8 @@ describe('API requests', function() {
       .post('/incoming')
       .send({
         body: 'yo whats up',
-        from: '9991112222',
-        to: '7778889999',
+        From: '+19991112222',
+        To: '+17778889999',
         _id: 'x9382'
       })
       .set('Accept', 'application/json')
@@ -153,7 +153,7 @@ describe('Message Process', function() {
       return message.findResponse();
     })
     .then(() => {
-      return message.saveResponse();
+      return message.saveUserResponse();
     })
     .then(() => {
       return message.incrementStep();
@@ -188,7 +188,7 @@ describe('Message Process', function() {
       return message.findResponse();
     })
     .then(() => {
-      return message.saveResponse();
+      return message.saveUserResponse();
     })
     .then(() => {
       return message.incrementStep();
