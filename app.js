@@ -49,18 +49,22 @@ app.post('/incoming', function(req, res) {
 	var message = new MessageRequest(req.body, fromNumber, toNumber, req.body.SmsMessageSid);
   return message.getUser().then((user) => {
     if (user) {
+      console.log("user", user)
+
       return user;
     } else {
       return message.createUser();
     }
   })
   .then(() => {
+    console.log("finding resp")
     return message.findResponse();
   })
   .then(()=> {
     return message.saveUserResponse();
   })
   .then(() => {
+    console.log("incsteop");
     return message.incrementStep();
   })
   .then(() => {
