@@ -61,10 +61,10 @@ app.post('/incoming', function(req, res) {
     return message.findResponse();
   })
   .then(()=> {
+    console.log("save resp");
     return message.saveUserResponse();
   })
   .then(() => {
-    console.log("incsteop");
     return message.incrementStep();
   })
   .then(() => {
