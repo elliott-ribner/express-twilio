@@ -14,6 +14,9 @@ class MessageRequest {
 	findResponse() {
 		return Convo.findOne({phoneNumber: this.to}) // right now there is only one convo but in the futrue we will to search them
 		.then((convo) => {
+			if (!convo) {
+				console.log("no convo with the number");
+			}
 			if (!this.user.workflowId) {
 				this.user.workflowId = convo._id;
 			}
