@@ -135,7 +135,7 @@ describe('Message Process', function() {
       expect(response).to.eql('Whats your first name');
     })
 	});
-
+  
 
   it("should return second message for existing user who is already on step 1", function() {
     let phone = '9998887777'
@@ -164,7 +164,7 @@ describe('Message Process', function() {
     .then(() => {
       return User.findOne({phoneNumber: phone}).lean();
     }).then((queryResult) => {
-      expect(queryResult.responses[0]).to.eql({
+      return expect(queryResult.responses[0]).to.eql({
         userReply: 'Ron',
         question: 'Whats your first name',
         _id: queryResult.responses[0]._id

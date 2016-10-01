@@ -43,7 +43,6 @@ app.get('/', function(req, res) {
 });
 
 app.post('/incoming', function(req, res) {
-  console.log("incoming", req.body);
   var fromNumber = req.body.From.slice(2);
   var toNumber = req.body.To.slice(2);
 	var message = new MessageRequest(req.body, fromNumber, toNumber, req.body.SmsMessageSid);
