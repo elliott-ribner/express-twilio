@@ -6,6 +6,7 @@ let helpers = require('./helpers');
 class MessageRequest {
 	constructor(body,sender,to,id) {
 		this.body = body;
+		this.text = body.Body;
 		this.sender = sender;
 		this.to = to;
 		this.twilioId = id;
@@ -41,7 +42,7 @@ class MessageRequest {
 		console.log("prev prompt",!this.previousPrompt)
 		console.log("valid", !this.validResponse);
 		if (!this.previousPrompt || !this.validResponse) {return; }
-		let response = {question: this.previousPrompt, userReply: this.body.body };
+		let response = {question: this.previousPrompt, userReply: this.text };
 		console.log("response to save",response);
 		return User.findOneAndUpdate({_id:this.user._id}, {$push: {responses: response}},{upsert: true}, function(err, doc) {
 			if (err) {
