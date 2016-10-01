@@ -41,7 +41,7 @@ class MessageRequest {
 		console.log("prev prompt",!this.previousPrompt)
 		console.log("valid", !this.validResponse);
 		if (!this.previousPrompt || !this.validResponse) {return; }
-		let response = {question: this.previousPrompt, userReply: this.body };
+		let response = {question: this.previousPrompt, userReply: this.body.body };
 		console.log("response to save",response);
 		return User.findOneAndUpdate({_id:this.user._id}, {$push: {responses: response}},{upsert: true}, function(err, doc) {
 			if (err) {
